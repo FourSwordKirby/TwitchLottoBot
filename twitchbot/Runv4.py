@@ -31,13 +31,12 @@ def checkTickets():
 	global userFunds;
 	global userTickets;
 
-	ticket =  random.sample(range(0, 6), 6)
+	ticket =  [1, 1, 1, 1, 1, 1]#random.sample(range(0, 6), 6)
 	sendMessage(s, "The ticket " + str(ticket) + " has been drawn!", 0);
-	time.sleep(0.5)
 	for user in userTickets:
 		winnings = 0;
+		matchCount = 0;
 		for userTicket in userTickets[user]:
-			matchCount = 0
 			for idx, number in enumerate(userTicket):
 				if(idx < 6):
 					if number == ticket[idx]:
@@ -52,19 +51,15 @@ def checkTickets():
 				winnings = max(winnings, 30)
 			if(matchCount == 5):
 				winnings = max(winnings, 100)
-			if(matchCount == 4):
+			if(matchCount == 6):
 				winnings = max(winnings, 200)
 		userTickets[user] = []
-		time.sleep(0.5)
-		sendMessage(s, "@" + user + " You matched " + str(matchCount) + " numbers", 0);
-
-		time.sleep(0.5)
-		sendMessage(s, "@" + user + " Congratulations! You have gained " + str(winnings) + " tickets", 0);
-		userFunds[user] += winnings;
-	time.sleep(3)
+		if(matchCount > 0):
+			time.sleep(1.0)
+			sendMessage(s, "@" + user + " Congratulations! You have gained " + str(winnings) + " tickets", 0);
+			userFunds[user] += winnings;
+	time.sleep(1.0)
 	sendMessage(s, "The drawing has concluded, the ticket pool has been cleaned for the next drawing", 0);
-
-checkTickets()
 
 def updateMessage():
 	threading.Timer(100, checkTickets).start()
@@ -144,9 +139,10 @@ while time.time() < starttime:
 							continue
 
 						response = "@" + user + " you have " + str(userFunds[user]) + " tickets remaining. "
-						response += "Your active tickets are: "
-						for ticketNumber in userTickets[user]:
-							response +=  "[" + ticketNumber + "] "
+						if(len(userTickets[user]) > 0):
+							response += "Your active tickets are: "
+							for ticketNumber in userTickets[user]:
+								response +=  str(ticketNumber)
 						sendMessage(s, response, 0);
 
 					if(message.startswith("!ticket")):
@@ -184,17 +180,16 @@ while time.time() < starttime:
 								sendMessage(s, response, 0);
 								continue
 
-							ticketNumber = ""
+							ticketNumber = []
 							for num in ticketNums:
-								ticketNumber += str(int(num)).rstrip() + " "
-							ticketNumber = ticketNumber.rstrip();
-
+								ticketNumber.append(int(num))
+							
 							userFunds[user] -= 1
 							if(not userTickets.has_key(user)):
 								userTickets[user] = [];
 							userTickets[user].append(ticketNumber)
 
-							response = "@" + user + " You have just purchased ticket [" + str(ticketNumber) + "]"
+							response = "@" + user + " You have just purchased ticket " + str(ticketNumber)
 							sendMessage(s, response, 0);
 
 				# Survives if there's a message problem
