@@ -26,12 +26,12 @@ winnings = 30;
 
 #check the ticket stash for winners
 def checkTickets():
-	threading.Timer(20, checkTickets).start()
+	threading.Timer(60, checkTickets).start()
 	global winnings;
 	global userFunds;
 	global userTickets;
 
-	ticket =  [1, 1, 1, 1, 1, 1]#random.sample(range(0, 6), 6)
+	ticket =  [random.randint(0, 20), random.randint(0, 20), random.randint(0, 20), random.randint(0, 20), random.randint(0, 20), random.randint(0, 20)]
 	sendMessage(s, "The ticket " + str(ticket) + " has been drawn!", 0);
 	for user in userTickets:
 		winnings = 0;
@@ -62,7 +62,7 @@ def checkTickets():
 	sendMessage(s, "The drawing has concluded, the ticket pool has been cleaned for the next drawing", 0);
 
 def updateMessage():
-	threading.Timer(100, checkTickets).start()
+	threading.Timer(30, checkTickets).start()
 	response = "A drawing is currently under way! Register to get tickets! Type !help for more info. "
 	response += "This stream does NOT encourage players to gamble recklessly"
 	sendMessage(s, response, 0);
