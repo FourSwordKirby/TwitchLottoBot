@@ -26,7 +26,7 @@ winnings = 30;
 
 #check the ticket stash for winners
 def checkTickets():
-	threading.Timer(10, checkTickets).start()
+	threading.Timer(20, checkTickets).start()
 	global winnings;
 	global userFunds;
 	global userTickets;
