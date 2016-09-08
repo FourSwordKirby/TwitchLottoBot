@@ -26,12 +26,12 @@ winnings = 30;
 
 #check the ticket stash for winners
 def checkTickets():
-	threading.Timer(200, checkTickets).start()
+	threading.Timer(10, checkTickets).start()
 	global winnings;
 	global userFunds;
 	global userTickets;
 
-	ticket =  random.sample(range(0, 99), 6)
+	ticket =  random.sample(range(0, 6), 6)
 	sendMessage(s, "The ticket " + str(ticket) + " has been drawn!", 0);
 	time.sleep(0.5)
 	for user in userTickets:
@@ -54,13 +54,15 @@ def checkTickets():
 				winnings = max(winnings, 100)
 			if(matchCount == 4):
 				winnings = max(winnings, 200)
-				
+		userTickets[user] = []
+		time.sleep(0.5)
+		sendMessage(s, "@" + user + " You matched " + str(matchCount) + " numbers", 0);
+
+		time.sleep(0.5)
 		sendMessage(s, "@" + user + " Congratulations! You have gained " + str(winnings) + " tickets", 0);
 		userFunds[user] += winnings;
-		time.sleep(0.2)
 	time.sleep(3)
 	sendMessage(s, "The drawing has concluded, the ticket pool has been cleaned for the next drawing", 0);
-	userTickets = dict()
 
 checkTickets()
 
@@ -118,6 +120,10 @@ while time.time() < starttime:
 						data = [id, channelname, user, datetime.now(), message.strip(), owner, mod, sub, turbo];
 						ab.writerow(data)
 					if(message.startswith("!register")):
+						if(userFunds.has_key(user)):
+							sendMessage(s, "@" + user + " You have already registered for the drawing", 0);
+							continue
+
 						if(not userFunds.has_key(user)):
 							userFunds[user] = 10;
 						if(not userTickets.has_key(user)):
@@ -127,9 +133,9 @@ while time.time() < starttime:
 						sendMessage(s, response, 0);
 
 					if(message.startswith("!help")):
-						response = "@" + user + " To buy a ticket, type in !ticket followed by the player, followed by 6 numbers. "
+						response = "@" + user + " To buy a ticket, type in !ticket followed by the player, followed by 6 numbers between 0 and 99. "
 						response += "For example, [!ticket 12 34 56 78 90 99] will purchase a ticket with numbers [12 34 56 78 90 99] "
-						response += "You get 5 tickets a day. Win drawings to earn more. Check your tickets with !myTickets"
+						response += "You get 10 tickets a day. Win drawings to earn more. Check your tickets with !myTickets"
 						sendMessage(s, response, 0);
 
 					if(message.startswith("!myTickets") or message.startswith("!mytickets")):
@@ -157,11 +163,17 @@ while time.time() < starttime:
 								ticketNumber += num.rstrip() + " "
 							ticketNumber = ticketNumber.rstrip();
 							
-							if(len(filter(lambda x: not x.rstrip().isdigit(), ticketNums)) != 0):
+							if(not len(filter(lambda x: not x.rstrip().isdigit(), ticketNums)) == 0):
 								response = "@" + user + " the numbers you have entered is not valid"
 								sendMessage(s, response, 0);
 								continue
 							
+							if(not len(filter(lambda x: int(x.rstrip()) > 99 or int(x.rstrip()) < 0, ticketNums)) == 0):
+								response = "@" + user + " a number you entered was out of the accepted range";
+								sendMessage(s, response, 0);
+								continue
+							
+
 							if(userFunds[user] <= 0):
 								response = "@" + user + " you lack the funds to purchase tickets"
 								sendMessage(s, response, 0);
@@ -171,6 +183,11 @@ while time.time() < starttime:
 								response = "@" + user + " you have already purchased that ticket"
 								sendMessage(s, response, 0);
 								continue
+
+							ticketNumber = ""
+							for num in ticketNums:
+								ticketNumber += str(int(num)).rstrip() + " "
+							ticketNumber = ticketNumber.rstrip();
 
 							userFunds[user] -= 1
 							if(not userTickets.has_key(user)):

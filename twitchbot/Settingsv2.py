@@ -13,4 +13,4 @@ IDENT = "Lonelichan"
 
 # List of channels to look at
 #note, channel name must be lowercase
-CHANNELLIST = ["fourswordkirby"]
+CHANNELLIST = ["thegreatlawrlus"]
